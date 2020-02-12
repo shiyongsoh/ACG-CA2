@@ -3,6 +3,8 @@ from Cryptodome.Cipher import PKCS1_OAEP, AES
 from Cryptodome.Util.Padding import pad, unpad
 from Cryptodome.PublicKey import RSA
 from datetime import datetime
+from Cryptodome.Signature import pkcs1_15
+from Cryptodome.Hash import SHA256
 now = datetime.now()
 time = now.strftime("%m-%d-%Y_%H+%M+%S")
 
@@ -79,7 +81,7 @@ class secure:
                     # store the public key to public.pem
                     with open(privateKeyName,"w") as f:
                         #print(keypair.exportKey().decode() ,file=f)
-                        f.write
+                        print(keypair.publickey().exportKey().decode() ,file=f)
                         privateKey = keypair.exportKey().decode()
                     f.close()
                     print("Private Key stored on to" ,privateKeyName)
@@ -105,15 +107,28 @@ class secure:
             print("not supported")
         #return result
         #return public, private, session
-    def verify():
+    def createCert(self,privateKey, publicKey):
         print("placeholder for verification")
-        
+        print(publicKey)
+        rsa_private_key = RSA.importKey(privateKey)
+        digest = SHA256.new(publicKey)
+        print(f'Original Digest: {digest}')
+        rsa_signature = pkcs1_15.new(rsa_private_key).sign(digest)
+        print(f'RSA signature {rsa_signature}')
+        return rsa_signature
+    def verifying(self,publicKey,signature):
+        key = RSA.import_key(publicKey)
+        digest = SHA256.new(publicKey)
+        print(f'Client side: {digest}')
+        result = pkcs1_15.new(key).verify(digest,signature)
+        if result == None:
+            result = True
+        return result
 
-
-secure = secure()
-public, private =secure.generating("RSA","client")
-print(public)
-print(private)
+# secure = secure()
+# public, private =secure.generating("RSA","client")
+# print(type(public))
+# print(type(private))
 #aeskey = secure.generating('AES','client')
 #encrypted = secure.encrypting("RSA",public,"server")
 #decrypt = secure.decrypting("RSA",private,encrypted)
@@ -121,3 +136,6 @@ print(private)
 #print('----------------------------------------------------------------')
 #aes = secure.encrypting("AES",aeskey,"client")
 #print(secure.decrypting("AES",aeskey,aes))
+# cert = secure.createCert(private,public)
+# print('cert',cert)
+# print(secure.verifying(public, cert))
