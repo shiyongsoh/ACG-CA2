@@ -1,9 +1,11 @@
 import datetime
+import os
 
 cmd_GET_MENU = "GET_MENU"
 cmd_END_DAY = "CLOSING"
 default_menu = "menu_today.txt"
 default_save_base = "result-"
+cmd_getUsers="getUsers"
 
 '''
 def process_input(input_string, input_from_client_bytes , ip_addr):  
@@ -27,11 +29,25 @@ def process_connection( conn , ip_addr, MAX_BUFFER_SIZE):
     blk_count = 0
     net_bytes = conn.recv(MAX_BUFFER_SIZE)
     dest_file = open("temp","w")
+
     while net_bytes != b'':
+
         if blk_count == 0: #  1st block
             usr_cmd = net_bytes[0:15].decode("utf8").rstrip()
+            if cmd_getUsers in usr_cmd:
+                with open(f"{filePath}/users.txt","rb") as usersFile:
+                    read_bytes = usersFile.read(MAX_BUFFER_SIZE)
+                    if read_bytes == b'':
+                        print(read_bytes)
+                        break
+                    conn.send(read_bytes)
+                    print(read_bytes)
+
+
             if cmd_GET_MENU in usr_cmd: # ask for menu
                 src_file = open(default_menu,"rb")
+
+
                 while True:
                     read_bytes = src_file.read(MAX_BUFFER_SIZE)
                     if read_bytes == b'':
@@ -42,6 +58,10 @@ def process_connection( conn , ip_addr, MAX_BUFFER_SIZE):
                 src_file.close()
                 print("Processed SENDING menu") 
                 return
+
+
+
+
             elif cmd_END_DAY in usr_cmd: # ask for to save end day order
                 now = datetime.datetime.now()
                 filename = default_save_base +  ip_addr + "-" + now.strftime("%Y-%m-%d_%H%M")
@@ -50,6 +70,7 @@ def process_connection( conn , ip_addr, MAX_BUFFER_SIZE):
                 print(net_bytes[ len(cmd_END_DAY): ])
                 blk_count = blk_count + 1
                 print('processed sending end day')
+
         else:  # write other blocks
             net_bytes = conn.recv(MAX_BUFFER_SIZE)
             dest_file.write(net_bytes)
@@ -101,4 +122,7 @@ def start_server():
             traceback.print_exc()
     soc.close()
 
+
+filePath = os.path.abspath(os.path.dirname(__file__)) #d:\Onedrive\OneDrive - Singapore Polytechnic\DISM Y1 S2\Programming In Security\Assignment\server
+print(filePath)
 start_server()  
