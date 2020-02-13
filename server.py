@@ -1,128 +1,50 @@
 import datetime
 import os
+from secure import secure
+from MessageManagement import MessageManagement
 
 cmd_GET_MENU = "GET_MENU"
 cmd_END_DAY = "CLOSING"
 default_menu = "menu_today.txt"
+helloServer="hello"
 default_save_base = "result-"
 cmd_getUsers="getUsers"
 
-'''
-def process_input(input_string, input_from_client_bytes , ip_addr):  
-    if input_string == cmd_GET_MENU:
-        of = open(default_menu,"rb")
-        return_data = of.read()
-        of.close()
-        print("Processed GET_MENU")
-    elif cmd_END_DAY in input_string:
-        now = datetime.datetime.now()
-        filename = default_save_base +  ip_addr + "-" + now.strftime("%Y-%m-%d_%H%M")
-        of = open(filename,"wb")
-        of.write( input_from_client_bytes[ len(cmd_END_DAY):] )
-        of.close()
-        return_data = b"OK"
-        print("Processed CLOSING")        
-    return return_data
-'''
+msg = MessageManagement()
 
-def process_connection( conn , ip_addr, MAX_BUFFER_SIZE):  
-    blk_count = 0
-    net_bytes = conn.recv(MAX_BUFFER_SIZE)
-    dest_file = open("temp","w")
-
-    while net_bytes != b'':
-
-        if blk_count == 0: #  1st block
-            usr_cmd = net_bytes[0:15].decode("utf8").rstrip()
-            if cmd_getUsers in usr_cmd:
-                with open(f"{filePath}/users.txt","rb") as usersFile:
-                    read_bytes = usersFile.read(MAX_BUFFER_SIZE)
-                    if read_bytes == b'':
-                        print(read_bytes)
-                        break
-                    conn.send(read_bytes)
-                    print(read_bytes)
-
-
-            if cmd_GET_MENU in usr_cmd: # ask for menu
-                src_file = open(default_menu,"rb")
-
-
-                while True:
-                    read_bytes = src_file.read(MAX_BUFFER_SIZE)
-                    if read_bytes == b'':
-                        print(read_bytes)
-                        break
-                    conn.send(read_bytes)
-                    print(read_bytes)
-                src_file.close()
-                print("Processed SENDING menu") 
-                return
-
-
-
-
-            elif cmd_END_DAY in usr_cmd: # ask for to save end day order
-                now = datetime.datetime.now()
-                filename = default_save_base +  ip_addr + "-" + now.strftime("%Y-%m-%d_%H%M")
-                dest_file = open(filename,"wb")
-                fileReceive = dest_file.write( net_bytes[ len(cmd_END_DAY): ] )  # remove the CLOSING header 
-                print(net_bytes[ len(cmd_END_DAY): ])
-                blk_count = blk_count + 1
-                print('processed sending end day')
-
-        else:  # write other blocks
-            net_bytes = conn.recv(MAX_BUFFER_SIZE)
-            dest_file.write(net_bytes)
-    # last block / empty block
-    dest_file.close()
-    print("Processed CLOSING done") 
-
-
-def client_thread(conn, ip, port, MAX_BUFFER_SIZE = 4096):
-    process_connection( conn, ip, MAX_BUFFER_SIZE)
-    conn.close()  # close connection
-    print('Connection ' + ip + ':' + port + " ended")
 
 def start_server():
-
-    import socket
-    soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # this is for easy starting/killing the app
-    soc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    print('Socket created')
-
-    try:
-        soc.bind(("127.0.0.1", 8888))
-        print('Socket bind complete')
-    except socket.error as msg:
-        import sys
-        print('Bind failed. Error : ' + str(sys.exc_info()))
-        print( msg.with_traceback() )
-        sys.exit()
-
-    #Start listening on socket
-    soc.listen(10)
-    print('Socket now listening')
-
-    # for handling task in separate jobs we need threading
-    from threading import Thread
-
-    # this will make an infinite loop needed for 
-    # not reseting server for every client
+    
     while True:
-        conn, addr = soc.accept()
-        ip, port = str(addr[0]), str(addr[1])
-        print('Accepting connection from ' + ip + ':' + port)
-        try:
-            Thread(target=client_thread, args=(conn, ip, port)).start()
-        except:
-            print("Terible error!")
-            import traceback
-            traceback.print_exc()
-    soc.close()
+        receivedMsg=msg.getMessage()
+        print('receivemsg',receivedMsg)
+        #receivedMsg=msg.communicate('receive')
+        
+        # if receivedMsg == "hello":
+        #     #sends public key
 
+        if receivedMsg=="getUsers":
+            with open(f'{filePath}/users.txt',"r") as f:
+                userFile=f.read()
+            #userFile.communicate("send",userFile)
+            sended = msg.sendMessage(userFile)
+            print("sended", sended)
+        elif receivedMsg=="GET_MENU":
+            with open(f'{filePath}/menu_today.txt',"r") as menu_today_server:
+                menuFile=menu_today_server.read()
+            #menuFile.communicate("send",menuFile)
+            sended = msg.sendMessage(menuFile)
+            print("sended", sended)
+        elif receivedMsg=="CLOSING":
+            #receivedMsg=msg.communicate("receive")
+            receivedMsg=msg.getMessage()
+            with open(f"{filePath}/dayEndServer.csv","w") as dayEndServerFile:
+                dayEndServerFile.write(receivedMsg)
 
+secure=secure()
+#public, private = secure.generating("RSA","SERVER")
+#cert = secure.createCert(private,public)
+#print(cert)        
 filePath = os.path.abspath(os.path.dirname(__file__)) #d:\Onedrive\OneDrive - Singapore Polytechnic\DISM Y1 S2\Programming In Security\Assignment\server
 print(filePath)
-start_server()  
+start_server()
