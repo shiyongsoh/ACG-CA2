@@ -77,8 +77,8 @@ class secure:
                         privateKey = f.read()
                     with open(publicKeyName,"rb") as f:
                         publicKey = f.read()
-                    priny(publicKey)
-                    priny(privateKey)
+                    print("publicKey",publicKey)
+                    print("privateKey",privateKey)
                 except:
                     print("placeholder for RSA")
                     print("placeholder for generate")
@@ -89,14 +89,14 @@ class secure:
                     # store the public key to public.pem
                     with open(privateKeyName,"w") as f:
                         #print(keypair.exportKey().decode() ,file=f)
-                        print(keypair.publickey().exportKey().decode() ,file=f)
                         privateKey = keypair.exportKey().decode()
+                        print(keypair.exportKey().decode() ,file=f)
                     f.close()
                     print("Private Key stored on to" ,privateKeyName)
                     
                     with open(publicKeyName,"w") as f:
-                        print(keypair.publickey().exportKey().decode() ,file=f)
                         publicKey = keypair.publickey().export_key()
+                        print(keypair.publickey().export_key().decode() ,file=f)
                         print('publicKey',publicKey)
                     f.close()
                     #print("Public Key stored on to", publicKeyName)
@@ -125,6 +125,7 @@ class secure:
         print(f'RSA signature {rsa_signature}')
         return rsa_signature
     def verifying(self,publicKey,signature):
+        print(publicKey)
         key = RSA.import_key(publicKey)
         digest = SHA256.new(publicKey)
         print(f'Client side: {digest}')

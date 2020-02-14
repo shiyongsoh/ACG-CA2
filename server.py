@@ -137,11 +137,9 @@ def closing():
         print('msg.getMessage()',information)
         contentToWrite = secure.decrypting("AES",key,information)
         print(contentToWrite)
-        exit()
         with open(f"{filePath}/dayEndServer.csv","w") as dayEndServerFile:
             serverFile = dayEndServerFile.write(contentToWrite)
-            print("serverFile",serverFile)
-            serverFile = serverFile.encode()
+            print(f"serverFile is {serverFile} bytes",)
 filePath = os.path.abspath(os.path.dirname(__file__)) #d:\Onedrive\OneDrive - Singapore Polytechnic\DISM Y1 S2\Programming In Security\Assignment\server
 #print(filePath)
 start_server()

@@ -59,26 +59,17 @@ def secureChannel(content):
     time.sleep(2)
     msg.sendMessage('asdf')
     signature = msg.getMessage()
-    print(type(publicKey))
-    print(type(signature))
     secure.verifying(publicKey,signature)
     if publicKey != None or '':
             publicKey = serverResponse
             sessionKey = secure.generating("AES", "client")
             encryptedSessionkey=secure.encrypting("RSA",publicKey,sessionKey)
-            print("encryptedSessionkey sent")
             time.sleep(3)
-            print("slept")
-            print(msg.sendMessage(encryptedSessionkey,""))
+            msg.sendMessage(encryptedSessionkey,"")
             content = secure.encrypting("AES",sessionKey,content)
-            print("content", content)
             time.sleep(3)
-            print("slept")
             msg.sendMessage(content,'')
-            print('content sent',content)
             test = msg.getMessage()
-            print(type(test))
-            print(test)
             test = secure.decrypting("AES",sessionKey,test)
             return test, sessionKey
         # except:
@@ -136,13 +127,10 @@ userList=[]
 #userVerify()
 print(secureChannel(cmd_GET_MENU))
 okToSendEndDay,key = secureChannel(cmd_END_DAY)
-print("key",key)
 if okToSendEndDay == "ok":
     with open(f"{filePath}/client/{return_file}","r") as f:
         asdf = f.read()
     encryptedQuery = secure.encrypting("AES",key, asdf)
-    input('press any ket to continue')
-    print("encryptedQuery",encryptedQuery)
     msg.sendMessage(encryptedQuery,'')
 #secure = secure()
 #print(secure.generating("AES","client"))
