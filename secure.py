@@ -15,8 +15,12 @@ class secure:
         print('')
 
     def encrypting(self,encType, key,data):
+        BLOCK_SIZE = 16
         encType = encType.upper()
-        data = data.encode()
+        try:
+            data = data.encode()
+        except:
+            pass
         print('plaintext:',data)
         print('-------------')
         if encType == "RSA": #Asymmetric
@@ -29,31 +33,35 @@ class secure:
             #sprint(encrypted)
             return encrypted
         elif encType == "AES": #symmetric
-            BLOCK_SIZE = 16
             
             print('done importing')
             cipher = AES.new(key, AES.MODE_ECB)  # new AES cipher using key generated
             cipher_text_bytes = cipher.encrypt(pad(data,BLOCK_SIZE)) # encrypt data
-            print('encrypted data',cipher_text_bytes)
+            #print('encrypted data',cipher_text_bytes)
             return cipher_text_bytes
         else:
             print('Not supported')
     def decrypting(self,encType,key,data):
         encType = encType.upper()
+        print(encType)
+        print('secure class decrypt data',data)
         if encType == "RSA":
             print("placeholder for RSA")
             pri_key=RSA.import_key(key)
             keysize=pri_key.size_in_bytes()
             cipher = PKCS1_OAEP.new(pri_key)
-            print('encrypting',data)
+            print('decrypting',data)
             plain_text = cipher.decrypt(data)
+            print('secure class decrypt plain_text',plain_text)
             return plain_text
         elif encType == "AES": #Symmetric
-            print('data',data)
+            #print('data',data)
             BLOCK_SIZE = 16  #  AES data block size 128 bits (16 bytes)
             decipher = AES.new(key, AES.MODE_ECB)
-            print(data)
-            print(decipher.decrypt(data))
+            decryptString = unpad(decipher.decrypt(data),BLOCK_SIZE)
+            decryptString = decryptString.decode()
+            #print(decipher.decrypt(data))
+            return decryptString
         else:
             print('Not supported')
 
@@ -125,8 +133,8 @@ class secure:
             result = True
         return result
 
-# secure = secure()
-# public, private =secure.generating("RSA","client")
+#secure = secure()
+#public, private =secure.generating("RSA","client")
 # print(type(public))
 # print(type(private))
 #aeskey = secure.generating('AES','client')
