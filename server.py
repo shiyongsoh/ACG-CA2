@@ -74,7 +74,8 @@ def secureChannel(content):
         time.sleep(3)
         print("slept")
         print(msg.sendMessage(giveBack,''))
-        start_server()
+        #start_server()
+        return content,decryptedSessionKey
     else:
         print('cannot')
 
@@ -113,24 +114,34 @@ def start_server(choice =None):
         elif receivedMsg=="CLOSING":
             #receivedMsg=msg.communicate("receive")
             #receivedMsg=msg.getMessage()
-            #closing()
-            contentToWrite = secureChannel('ok')
-            print("contentToWrite",contentToWrite)
-            with open(f"{filePath}/dayEndServer.csv","w") as dayEndServerFile:
-                serverFile = dayEndServerFile.write(contentToWrite)
-                print("serverFile",serverFile)
-                serverFile = serverFile.encode()
+            closing()
+            # contentToWrite = secureChannel('ok')
+            # print("contentToWrite",contentToWrite)
+            # contentToWrite = contentToWrite.decode()
+            # with open(f"{filePath}/dayEndServer.csv","w") as dayEndServerFile:
+            #     serverFile = dayEndServerFile.write(contentToWrite)
+            #     print("serverFile",serverFile)
+            #     serverFile = serverFile.encode()
         # elif receivedMsg == "hi":
         #     with open(f'{filePath}/menu_today.txt',"r") as menu_today_server:
         #         menuFile=menu_today_server.read()
         #     secureChannel(menuFile)
 def closing():
-    contentToWrite = secureChannel('ok')
+    contentToWrite,key = secureChannel('ok')
+    print('key',type(key))
+    print('key',key)
     print("contentToWrite",contentToWrite)
-    with open(f"{filePath}/dayEndServer.csv","w") as dayEndServerFile:
-        serverFile = dayEndServerFile.write(contentToWrite)
-        print("serverFile",serverFile)
-        serverFile = serverFile.encode()
+    print("contentToWrite",type(contentToWrite))
+    if contentToWrite == "ok":
+        information = msg.getMessage()
+        print('msg.getMessage()',information)
+        contentToWrite = secure.decrypting("AES",key,information)
+        print(contentToWrite)
+        exit()
+        with open(f"{filePath}/dayEndServer.csv","w") as dayEndServerFile:
+            serverFile = dayEndServerFile.write(contentToWrite)
+            print("serverFile",serverFile)
+            serverFile = serverFile.encode()
 filePath = os.path.abspath(os.path.dirname(__file__)) #d:\Onedrive\OneDrive - Singapore Polytechnic\DISM Y1 S2\Programming In Security\Assignment\server
 #print(filePath)
 start_server()

@@ -71,14 +71,16 @@ def secureChannel(content):
             print("slept")
             print(msg.sendMessage(encryptedSessionkey,""))
             content = secure.encrypting("AES",sessionKey,content)
+            print("content", content)
             time.sleep(3)
             print("slept")
             msg.sendMessage(content,'')
+            print('content sent',content)
             test = msg.getMessage()
             print(type(test))
             print(test)
             test = secure.decrypting("AES",sessionKey,test)
-            return test
+            return test, sessionKey
         # except:
         #     print('no send')
         #     return False
@@ -133,11 +135,14 @@ userList=[]
 #auth()
 #userVerify()
 print(secureChannel(cmd_GET_MENU))
-okToSendEndDay = secureChannel(cmd_END_DAY)
+okToSendEndDay,key = secureChannel(cmd_END_DAY)
+print("key",key)
 if okToSendEndDay == "ok":
     with open(f"{filePath}/client/{return_file}","r") as f:
         asdf = f.read()
-    secureChannel(asdf)
-
+    encryptedQuery = secure.encrypting("AES",key, asdf)
+    input('press any ket to continue')
+    print("encryptedQuery",encryptedQuery)
+    msg.sendMessage(encryptedQuery,'')
 #secure = secure()
 #print(secure.generating("AES","client"))
