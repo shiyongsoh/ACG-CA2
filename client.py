@@ -51,7 +51,7 @@ def respond(content,thingsToSend):
 
 def secureChannel(content):
     #establishing secure
-    serverResponse = request("hi")
+    serverResponse = request(content)
     # serverResponse = interpreter(serverResponse)
     print('server Response',serverResponse)
     publicKey = serverResponse
@@ -66,15 +66,17 @@ def secureChannel(content):
             publicKey = serverResponse
             sessionKey = secure.generating("AES", "client")
             encryptedSessionkey=secure.encrypting("RSA",publicKey,sessionKey)
-            print("encryptedSessionkey",encryptedSessionkey)
+            print("encryptedSessionkey sent")
             time.sleep(3)
             print("slept")
-            msg.sendMessage(encryptedSessionkey,"")
+            print(msg.sendMessage(encryptedSessionkey,""))
             content = secure.encrypting("AES",sessionKey,content)
-            time.sleep(4)
+            time.sleep(3)
             print("slept")
             msg.sendMessage(content,'')
             test = msg.getMessage()
+            print(type(test))
+            print(test)
             test = secure.decrypting("AES",sessionKey,test)
             return test
         # except:
@@ -130,6 +132,12 @@ print(filePath)
 userList=[]
 #auth()
 #userVerify()
-print(secureChannel(cmd_END_DAY))
+print(secureChannel(cmd_GET_MENU))
+okToSendEndDay = secureChannel(cmd_END_DAY)
+if okToSendEndDay == "ok":
+    with open(f"{filePath}/client/{return_file}","r") as f:
+        asdf = f.read()
+    secureChannel(asdf)
+
 #secure = secure()
 #print(secure.generating("AES","client"))

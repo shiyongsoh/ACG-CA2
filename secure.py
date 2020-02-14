@@ -15,6 +15,7 @@ class secure:
         print('')
 
     def encrypting(self,encType, key,data):
+        BLOCK_SIZE = 16
         encType = encType.upper()
         try:
             data = data.encode()
@@ -32,7 +33,6 @@ class secure:
             #sprint(encrypted)
             return encrypted
         elif encType == "AES": #symmetric
-            BLOCK_SIZE = 16
             
             print('done importing')
             cipher = AES.new(key, AES.MODE_ECB)  # new AES cipher using key generated
@@ -43,6 +43,8 @@ class secure:
             print('Not supported')
     def decrypting(self,encType,key,data):
         encType = encType.upper()
+        print(encType)
+        print('secure class decrypt data',data)
         if encType == "RSA":
             print("placeholder for RSA")
             pri_key=RSA.import_key(key)
@@ -50,13 +52,16 @@ class secure:
             cipher = PKCS1_OAEP.new(pri_key)
             print('decrypting',data)
             plain_text = cipher.decrypt(data)
+            print('secure class decrypt plain_text',plain_text)
             return plain_text
         elif encType == "AES": #Symmetric
             #print('data',data)
             BLOCK_SIZE = 16  #  AES data block size 128 bits (16 bytes)
             decipher = AES.new(key, AES.MODE_ECB)
-            #print(data)
+            decryptString = unpad(decipher.decrypt(data),BLOCK_SIZE)
+            decryptString = decryptString.decode()
             #print(decipher.decrypt(data))
+            return decryptString
         else:
             print('Not supported')
 

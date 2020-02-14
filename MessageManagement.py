@@ -18,28 +18,28 @@ class MessageManagement:
         with conn:
             print('Connected by ',addr)
             data = conn.recv(99999)
-            print('data',data)
             try:
-                print('dataDecode try is running')
+                #print('dataDecode try is running')
                 dataDecode = data.decode()
             except:
-                print('dataDecode except is running')
+                #print('dataDecode except is running')
                 dataDecode = data
             conn.sendall(data)
+            print("messagemanagement",data)
             s.close()
         #FM = FileManager()
         #FM.writing(data)
-        print(data)
-        print(dataDecode)
+        print("messagemanagement dataDecode",dataDecode)
         return dataDecode
-    def sendMessage(self,message):
+        
+    def sendMessage(self,message,Encode=None):
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect((destination, port))
             if message == None or "":
                 message = "Null"
             #print("encode", self.Encode)
-            if self.Encode == None or self.Encode:
+            if Encode == None:
                 s.sendall(message.encode())
                 print('message sent',message)
             else:
