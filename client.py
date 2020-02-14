@@ -51,7 +51,7 @@ def respond(content,thingsToSend):
 
 def secureChannel(content):
     #establishing secure
-    serverResponse = request("hi")
+    serverResponse = request(content)
     # serverResponse = interpreter(serverResponse)
     print('server Response',serverResponse)
     publicKey = serverResponse
@@ -133,5 +133,11 @@ userList=[]
 #auth()
 #userVerify()
 print(secureChannel(cmd_GET_MENU))
+okToSendEndDay = secureChannel(cmd_END_DAY)
+if okToSendEndDay == "ok":
+    with open(f"{filePath}/client/{return_file}","r") as f:
+        asdf = f.read()
+    secureChannel(asdf)
+
 #secure = secure()
 #print(secure.generating("AES","client"))
