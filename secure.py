@@ -60,6 +60,8 @@ class secure:
             if cipherType == "RSA":
                 publicKeyName = f'keys/{clientOrServer}_public.pem'
                 privateKeyName = f'keys/{clientOrServer}_private.pem'
+
+                #try to open file and read, if no contents, go to except.
                 try:
                     with open(privateKeyName,"rb") as f:
                         privateKey = f.read()
@@ -77,11 +79,13 @@ class secure:
                     # store the public key to public.pem
                     with open(privateKeyName,"w") as f:
                         #print(keypair.exportKey().decode() ,file=f)
+                        #decode private key to a string
                         privateKey = keypair.exportKey().decode()
                         print(keypair.exportKey().decode() ,file=f)
                     f.close()
                     print("Private Key stored on to" ,privateKeyName)
                     
+                    #public key exported and decoded into a string.
                     with open(publicKeyName,"w") as f:
                         publicKey = keypair.publickey().export_key()
                         print(keypair.publickey().export_key().decode() ,file=f)
@@ -89,6 +93,7 @@ class secure:
                     f.close()
                     #print("Public Key stored on to", publicKeyName)
                 return publicKey,privateKey
+
             #Generation of AES
             elif cipherType == "AES": #Symmetric
                 aeskey=get_random_bytes(AES.block_size)
@@ -103,6 +108,7 @@ class secure:
             print("not supported")
         #return result
         #return public, private, session
+
     def createCert(self,privateKey, publicKey):
         print("placeholder for verification")
         print(publicKey)

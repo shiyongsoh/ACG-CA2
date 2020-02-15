@@ -15,6 +15,7 @@ cert = secure.createCert(private,public)
 print(cert)
 msg = MessageManagement
 msg = MessageManagement()
+
 def request(content):
     print("content", content)
     msg.sendMessage(content)
