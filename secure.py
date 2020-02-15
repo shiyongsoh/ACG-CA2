@@ -21,38 +21,26 @@ class secure:
             data = data.encode()
         except:
             pass
-        print('plaintext:',data)
-        print('-------------')
+        #print('plaintext:',data)
         if encType == "RSA": #Asymmetric
             pub_key=RSA.import_key(key)
             cipher = PKCS1_OAEP.new(pub_key)
-            #print('cipher',cipher)
             encrypted = cipher.encrypt(data)
-            #print('encrypted',encrypted)
-            #encrypted = encrypted.decode()
-            #sprint(encrypted)
             return encrypted
         elif encType == "AES": #symmetric
             
-            print('done importing')
             cipher = AES.new(key, AES.MODE_ECB)  # new AES cipher using key generated
             cipher_text_bytes = cipher.encrypt(pad(data,BLOCK_SIZE)) # encrypt data
-            #print('encrypted data',cipher_text_bytes)
             return cipher_text_bytes
         else:
             print('Not supported')
     def decrypting(self,encType,key,data):
         encType = encType.upper()
-        print(encType)
-        print('secure class decrypt data',data)
         if encType == "RSA":
-            print("placeholder for RSA")
             pri_key=RSA.import_key(key)
             keysize=pri_key.size_in_bytes()
             cipher = PKCS1_OAEP.new(pri_key)
-            print('decrypting',data)
             plain_text = cipher.decrypt(data)
-            print('secure class decrypt plain_text',plain_text)
             return plain_text
         elif encType == "AES": #Symmetric
             #print('data',data)

@@ -98,10 +98,11 @@ def start_server(choice =None):
         if receivedMsg=="getUsers":
             with open(f'{filePath}/users.txt',"r") as f:
                 userFile=f.read()
-                return userFile
+                #return userFile
             #userFile.communicate("send",userFile)
             #sended = msg.sendMessage(userFile)
             #print("sended", sended)
+            secureChannel(userFile)
         elif receivedMsg == "GET_MENU":
             print("get menu is running")
             with open(f'{filePath}/menu_today.txt',"r") as menu_today_server:
@@ -128,17 +129,13 @@ def start_server(choice =None):
         #     secureChannel(menuFile)
 def closing():
     contentToWrite,key = secureChannel('ok')
-    print('key',type(key))
-    print('key',key)
-    print("contentToWrite",contentToWrite)
-    print("contentToWrite",type(contentToWrite))
     if contentToWrite == "ok":
         information = msg.getMessage()
-        print('msg.getMessage()',information)
         contentToWrite = secure.decrypting("AES",key,information)
-        print(contentToWrite)
-        with open(f"{filePath}/dayEndServer.csv","w") as dayEndServerFile:
+        with open(f"{filePath}/dayEndServer.csv","w+") as dayEndServerFile:
             serverFile = dayEndServerFile.write(contentToWrite)
+            contentToWrite = dayEndServerFile.read(contentToWrite)
+            print(contentToWrite)
             print(f"serverFile is {serverFile} bytes",)
 filePath = os.path.abspath(os.path.dirname(__file__)) #d:\Onedrive\OneDrive - Singapore Polytechnic\DISM Y1 S2\Programming In Security\Assignment\server
 #print(filePath)

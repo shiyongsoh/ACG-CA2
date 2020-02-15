@@ -25,11 +25,9 @@ class MessageManagement:
                 #print('dataDecode except is running')
                 dataDecode = data
             conn.sendall(data)
-            print("messagemanagement",data)
             s.close()
         #FM = FileManager()
         #FM.writing(data)
-        print("messagemanagement dataDecode",dataDecode)
         return dataDecode
         
     def sendMessage(self,message,Encode=None):
@@ -41,7 +39,6 @@ class MessageManagement:
             #print("encode", self.Encode)
             if Encode == None:
                 s.sendall(message.encode())
-                print('message sent',message)
             else:
                 s.sendall(message)
             #print(self.message)

@@ -53,9 +53,11 @@ def secureChannel(content):
     #establishing secure
     serverResponse = request(content)
     # serverResponse = interpreter(serverResponse)
-    print('server Response',serverResponse)
     publicKey = serverResponse
-    publicKey = publicKey.encode()
+    try:
+        publicKey = publicKey.encode()
+    except:
+        pass
     time.sleep(2)
     msg.sendMessage('asdf')
     signature = msg.getMessage()
@@ -70,14 +72,16 @@ def secureChannel(content):
             time.sleep(3)
             msg.sendMessage(content,'')
             test = msg.getMessage()
+            print(type(test))
             test = secure.decrypting("AES",sessionKey,test)
+            print(type(test))
             return test, sessionKey
         # except:
         #     print('no send')
         #     return False
 #Authentication of the user
 def userVerify():
-    userClientRead = request(cmd_getUser)
+    userClientRead,key = secureChannel(cmd_getUser)
     print(userClientRead)
     # with open(f"{filePath}/client/usersClient.txt","r") as userRead:
     #     userClientRead=userRead.read()
@@ -98,22 +102,21 @@ def userVerify():
     
     for x in range(0, len(userList)):
         if user in userList[x][0] and userHash in userList[x][1]:
+            #user autheticated
             print("OKAY")
 
-            # menuItem=msg.sendMessage(cmd_GET_MENU)
-            menuItem=request(cmd_GET_MENU)
-            with open(f'{filePath}/client/{menu_file}','w') as clientMenu:
-                clientMenu.write(menuItem)
+            #talks to server
 
-            with open(f'{filePath}/client/{menu_file}','r') as clientMenu:
-                clientMenuContents=clientMenu.read()
-                print(clientMenuContents)
+            menu,sessionKey = secureChannel(cmd_GET_MENU)
+            print(menu)
 
             #send
-            msg.sendMessage(cmd_END_DAY)
-            with open(f"{filePath}/client/{return_file}","r") as f:
-                asdf = f.read()
-            msg.sendMessage(asdf)
+            okToSendEndDay,key = secureChannel(cmd_END_DAY)
+            if okToSendEndDay == "ok":
+                with open(f"{filePath}/client/{return_file}","r") as f:
+                    asdf = f.read()
+                encryptedQuery = secure.encrypting("AES",key, asdf)
+                msg.sendMessage(encryptedQuery,'')
             #messageManagement.communicate('send',cmd_END_DAY,return_file)
             
         break
@@ -124,13 +127,16 @@ filePath = os.path.abspath(os.path.dirname(__file__)) #d:\Onedrive\OneDrive - Si
 print(filePath)
 userList=[]
 #auth()
-#userVerify()
-print(secureChannel(cmd_GET_MENU))
-okToSendEndDay,key = secureChannel(cmd_END_DAY)
-if okToSendEndDay == "ok":
-    with open(f"{filePath}/client/{return_file}","r") as f:
-        asdf = f.read()
-    encryptedQuery = secure.encrypting("AES",key, asdf)
-    msg.sendMessage(encryptedQuery,'')
+userVerify()
+
+
+# menu,sessionKey = secureChannel(cmd_GET_MENU)
+# print(menu)
+# okToSendEndDay,key = secureChannel(cmd_END_DAY)
+# if okToSendEndDay == "ok":
+#     with open(f"{filePath}/client/{return_file}","r") as f:
+#         asdf = f.read()
+#     encryptedQuery = secure.encrypting("AES",key, asdf)
+    #msg.sendMessage(encryptedQuery,'')
 #secure = secure()
 #print(secure.generating("AES","client"))
