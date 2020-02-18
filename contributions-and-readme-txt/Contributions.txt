@@ -1,0 +1,20 @@
+Contributions:
+
+Tan Si Jie Bryan(P1838338) and Soh Shi Yong(P1906686):
+
+User Authentication: 
+Authenticates if the user name and password hash is the 
+same.
+
+Generation of RSA and AES:
+Generates RSA public and private key.
+Gernerates AES Session key for transfer.
+
+Encryption (Bi-directional):
+Encrypts everything.
+
+Decryption:
+Decrypt everything.
+
+Digital Signature:
+Used to verify and offers non-repudiation.

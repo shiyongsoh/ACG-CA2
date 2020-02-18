@@ -1,7 +1,6 @@
 import socket
 port = 8888
 destination = '127.0.0.1'
-from FileManager import FileManager
 class MessageManagement:
     def __init__(self, Encode=None,connection=True):
         self.connection = connection
@@ -12,11 +11,11 @@ class MessageManagement:
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)#kill ports
         s.bind((destination, port))
         s.listen()
-        print('listening',port)
+        # print('listening',port)
         #print("timeout",asdf)
         conn, addr = s.accept()
         with conn:
-            print('Connected by ',addr)
+            # print('Connected by ',addr)
             data = conn.recv(99999)
             try:
                 #print('dataDecode try is running')

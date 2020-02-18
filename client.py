@@ -13,33 +13,9 @@ msg = MessageManagement()
 secure = secure()
 import time
 
-def interpreter(stringToProcess):
-    #interpretes things that was send over by the server, from string to arrays
-    print("stringToProcess",stringToProcess)
-    result = []
-    allList = []
-    titleNsubtitle = stringToProcess.split("\n")
-    for x in range(0,len(titleNsubtitle)):
-        individual = titleNsubtitle[x].split(",")
-        result.append(individual)
-    return result
-def arrayToString(content):
-    #converts array to string
-    for x in content:
-        processedContent = "".join(str(content))
-    return processedContent
-
-#-------------------utility--------------------------------#
-
-
-def auth():
-    print('placeholder auth')
-    #messageManagement.communicate("send",'hello')
-    #messageManagement.communicate("receive")
-
 #Send message to server then receive.
 def request(content):
-    print("content", content)
+    # print("content", content)
     msg.sendMessage(content)
     result = msg.getMessage()
     return result
@@ -58,34 +34,32 @@ def secureChannel(content):
         publicKey = publicKey.encode()
     except:
         pass
-    time.sleep(2)
+    time.sleep(2)  #Waits for the server to get ready
     msg.sendMessage('asdf')
     signature = msg.getMessage()
-    secure.verifying(publicKey,signature)
-    if publicKey != None or '':
+    secure.verifying(publicKey,signature)   #will quit the program if this is not verified
+    if publicKey != None or '':     #if public key is not none
             publicKey = serverResponse
-            sessionKey = secure.generating("AES", "client")
+            sessionKey = secure.generating("AES", "client") #generates the AES key
             encryptedSessionkey=secure.encrypting("RSA",publicKey,sessionKey)
-            time.sleep(3)
-            msg.sendMessage(encryptedSessionkey,"")
+            time.sleep(3)   #Waits for the server to get ready
+            msg.sendMessage(encryptedSessionkey,"") #sends the encrpyted key without encoding it again to prevent error
             content = secure.encrypting("AES",sessionKey,content)
-            time.sleep(3)
+            time.sleep(3)   #Waits for the server to get ready
             msg.sendMessage(content,'')
             test = msg.getMessage()
-            print(type(test))
-            test = secure.decrypting("AES",sessionKey,test)
-            print(type(test))
+            # print(type(test))
+            test = secure.decrypting("AES",sessionKey,test)#decrypts the response
+            # print(type(test))
             return test, sessionKey
         # except:
         #     print('no send')
         #     return False
+
 #Authentication of the user
 def userVerify():
     userClientRead,key = secureChannel(cmd_getUser)
-    print(userClientRead)
-    # with open(f"{filePath}/client/usersClient.txt","r") as userRead:
-    #     userClientRead=userRead.read()
-
+    #gets the reposne and check the authorised list of people
     userSplitByComma=userClientRead.split(",")
     for x in range(0,len(userSplitByComma)):
         userTxtFileUserNamePasswordSeparate = userSplitByComma[x].split(":")
@@ -97,46 +71,32 @@ def userVerify():
     cipher = hashlib.sha256()
     cipher.update(encodedPassword)
     userHash=cipher.hexdigest()
-    print(userHash)
-    print(userList)
-    
+    print('userHash',userHash)
     for x in range(0, len(userList)):
         if user in userList[x][0] and userHash in userList[x][1]:
+            print(userList[1][0], userList[1][1])
             #user autheticated
-            print("OKAY")
+            print(f"\n{'-'*30}\nOKAY, sending menu over now.\n{'-'*30}\n")
 
             #talks to server
 
             menu,sessionKey = secureChannel(cmd_GET_MENU)
-            print(menu)
-
+            print('sessionKey',sessionKey)
+            print(f"\n{'='*20}\nMenu for today:\n{menu}\n{'='*20}")
             #send
             okToSendEndDay,key = secureChannel(cmd_END_DAY)
             if okToSendEndDay == "ok":
                 with open(f"{filePath}/client/{return_file}","r") as f:
                     asdf = f.read()
+                # print("sent", asdf)
                 encryptedQuery = secure.encrypting("AES",key, asdf)
                 msg.sendMessage(encryptedQuery,'')
-            #messageManagement.communicate('send',cmd_END_DAY,return_file)
-            
-        break
+            break
 
 
 #while True:
 filePath = os.path.abspath(os.path.dirname(__file__)) #d:\Onedrive\OneDrive - Singapore Polytechnic\DISM Y1 S2\Programming In Security\Assignment\server
-print(filePath)
+# print(filePath)
 userList=[]
 #auth()
 userVerify()
-
-
-# menu,sessionKey = secureChannel(cmd_GET_MENU)
-# print(menu)
-# okToSendEndDay,key = secureChannel(cmd_END_DAY)
-# if okToSendEndDay == "ok":
-#     with open(f"{filePath}/client/{return_file}","r") as f:
-#         asdf = f.read()
-#     encryptedQuery = secure.encrypting("AES",key, asdf)
-    #msg.sendMessage(encryptedQuery,'')
-#secure = secure()
-#print(secure.generating("AES","client"))

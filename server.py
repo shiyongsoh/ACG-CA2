@@ -12,122 +12,83 @@ cmd_getUsers="getUsers"
 secure=secure()
 public, private = secure.generating("RSA","SERVER")
 cert = secure.createCert(private,public)
-print(cert)
+# print(cert)
 msg = MessageManagement
 msg = MessageManagement()
 
 def request(content):
-    print("content", content)
+    #sends and expects something in return. Returns a value
+    # print("content", content)
     msg.sendMessage(content)
     result = msg.getMessage()
     return result
 
 #Get message from the server and server sends to client.
 def respond(content,thingsToSend):
+    #receive something and sends something back. Does not return a value
     msg.getMessage(content)
     msg.sendMessage(thingsToSend)
 
-def interpreter(stringToProcess):
-    #interpretes things that was send over by the server, from string to arrays
-    result = []
-    allList = []
-    titleNsubtitle = stringToProcess.split("\n")
-    for x in range(0,len(titleNsubtitle)):
-        individual = titleNsubtitle[x].split(",")
-        result.append(individual)
-    return result
-
-def arrayToString(content):
-    #converts array to string
-    for x in content:
-        processedContent = "".join(str(content))
-    return processedContent
 
 #-------------------utility--------------------------------#
 def secureChannel(content):
-    print("this is running")
-    print("public",type(public))
+    #establish an encrpyted signal, returns the symmetric key.
+    #query comes in plaintext, reponse goes back in encrypted text
+    # print("public",type(public))
     publicKey=msg.sendMessage(public,'')
+    #this can be any message, as it is just another way for telling the server that they can continue sending
+    #it is like acknowledgement from client
     asdf = msg.getMessage()
-    print('asdf',asdf)
-    certToSend=msg.sendMessage(cert,'')
-    print("cert",type(cert))
-    #msg.sendMessage(thingsToSend)
-    encryptedSessionKey = msg.getMessage()
-    print("encryptedSessionKey",encryptedSessionKey)
-    print("encryptedSessionKey",type(encryptedSessionKey))
-    print("encryptedSessionKey",encryptedSessionKey)
-    decryptedSessionKey = secure.decrypting("RSA",private,encryptedSessionKey)
-    print('\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nasdf',decryptedSessionKey)
-    print(type(decryptedSessionKey))
+    # print('asdf',asdf)
+    certToSend=msg.sendMessage(cert,'') #sends cert to client to ensure that the coming response is coming from the server.
+    encryptedSessionKey = msg.getMessage()#gets session key in return
+    decryptedSessionKey = secure.decrypting("RSA",private,encryptedSessionKey)#decrypts session key
     
     if decryptedSessionKey != None or '':
+        #decrypts content with decrypted session key and sends back a encrpyted response
         query = request("ok")
-        #print(query.decode())
         decryptedQuery = secure.decrypting("AES",decryptedSessionKey,query)
-        print("query",decryptedQuery)
+        # print("query",decryptedQuery)
         decryptedQuery = decryptedQuery.encode()
-        print("query",type(decryptedQuery))
-        #encryptedGiveBack = start_server(decryptedQuery)
-        print("content",content)
+        # print("query",type(decryptedQuery))
+        # print("content",content)
         giveBack = secure.encrypting("AES",decryptedSessionKey,content)
-        print("giveBack",giveBack)
+        # print("giveBack",giveBack)
         time.sleep(3)
-        print("slept")
-        print(msg.sendMessage(giveBack,''))
-        #start_server()
+        # print("slept")
+        msg.sendMessage(giveBack,'')
         return content,decryptedSessionKey
     else:
         print('cannot')
 
 def start_server(choice =None):
-    print('choice',choice)
-    print(type(choice))
+    #starts to listen and respond to any query send by the client
+    # print('choice',choice)
+    # print(type(choice))
     while True:
-        print('choice',choice)
+        # print('choice',choice)
         if choice == None:
-            print("choice is None")
+            # print("choice is None")
             receivedMsg=msg.getMessage()
-            print('receivemsg',receivedMsg)
-        #receivedMsg=msg.communicate('receive')
+            # print('receivemsg',receivedMsg)
         else:
-            
+            #receive the query and deocode it
             receivedMsg = choice.decode().upper()
-            print('receivedMsg',receivedMsg)
+            # print('receivedMsg',receivedMsg)
             break
-        
+        #---------------------------------------------------------------reponse to query-----------------------------------------------------#
         if receivedMsg=="getUsers":
             with open(f'{filePath}/users.txt',"r") as f:
                 userFile=f.read()
-                #return userFile
-            #userFile.communicate("send",userFile)
-            #sended = msg.sendMessage(userFile)
-            #print("sended", sended)
             secureChannel(userFile)
         elif receivedMsg == "GET_MENU":
-            print("get menu is running")
+            # print("get menu is running")
             with open(f'{filePath}/menu_today.txt',"r") as menu_today_server:
                 menuFile=menu_today_server.read()
-            #menuFile.communicate("send",menuFile)
-            #sended = msg.sendMessage(menuFile)
-            print("sended", menuFile)
-            # return menuFile
+            # print("sended", menuFile)
             secureChannel(menuFile)
         elif receivedMsg=="CLOSING":
-            #receivedMsg=msg.communicate("receive")
-            #receivedMsg=msg.getMessage()
             closing()
-            # contentToWrite = secureChannel('ok')
-            # print("contentToWrite",contentToWrite)
-            # contentToWrite = contentToWrite.decode()
-            # with open(f"{filePath}/dayEndServer.csv","w") as dayEndServerFile:
-            #     serverFile = dayEndServerFile.write(contentToWrite)
-            #     print("serverFile",serverFile)
-            #     serverFile = serverFile.encode()
-        # elif receivedMsg == "hi":
-        #     with open(f'{filePath}/menu_today.txt',"r") as menu_today_server:
-        #         menuFile=menu_today_server.read()
-        #     secureChannel(menuFile)
 def closing():
     contentToWrite,key = secureChannel('ok')
     if contentToWrite == "ok":
@@ -135,8 +96,7 @@ def closing():
         contentToWrite = secure.decrypting("AES",key,information)
         with open(f"{filePath}/dayEndServer.csv","w+") as dayEndServerFile:
             serverFile = dayEndServerFile.write(contentToWrite)
-            contentToWrite = dayEndServerFile.read(contentToWrite)
-            print(contentToWrite)
+            print(f"\n{'='*20}\n{contentToWrite}\n{'='*20}")
             print(f"serverFile is {serverFile} bytes",)
 filePath = os.path.abspath(os.path.dirname(__file__)) #d:\Onedrive\OneDrive - Singapore Polytechnic\DISM Y1 S2\Programming In Security\Assignment\server
 #print(filePath)
